@@ -1,97 +1,79 @@
 #include <stdio.h>
 #include <time.h>
-#include <stdlib.h>
-#include <math.h>
 
-// Tarih ve saat bilgilerini tutan struct
-typedef struct {
-    int yil;
-    int ay;
-    int gun;
-    int saat;
-    int dakika;
-    int saniye;
-} TarihSaat;
+// Tarih ve saat bilgisini saklamaya yarayan struct
+struct TarihSaat {
+    int yil, ay, gun, saat, dakika, saniye;
+};
 
-// Tarih ve saat bilgilerini al ve doğruluğunu kontrol et
-TarihSaat tarihSaatAl(int tarihNumarasi) { 
-    TarihSaat tarih; 
+// Epoch zamanını saklamak için union
+union EpochZaman {
+    time_t epoch;
+};
 
-    printf("%d. tarih ve saati girin:\n", tarihNumarasi);
-
+// Kullanıcıdan tarih bilgisi alan fonksiyon
+void tarihSaatAl(struct TarihSaat *ts) {
     printf("Yil: ");
-    if (scanf("%d", &tarih.yil) != 1) {
-        tarih.yil = 0; // Hata durumunda varsayılan değer ataması
-        return tarih;
-    }
-    printf("Ay: ");       
-    if (scanf("%d", &tarih.ay) != 1 || tarih.ay < 1 || tarih.ay > 12) {
-        tarih.ay = 0;
-        return tarih;
-    }
+    scanf("%d", &ts->yil);
+    printf("Ay: ");
+    scanf("%d", &ts->ay);
     printf("Gun: ");
-    if (scanf("%d", &tarih.gun) != 1 || tarih.gun < 1 || tarih.gun > 31) {
-        tarih.gun = 0;
-        return tarih;
-    }
+    scanf("%d", &ts->gun);
     printf("Saat: ");
-    if (scanf("%d", &tarih.saat) != 1 || tarih.saat < 0 || tarih.saat > 23) {
-        tarih.saat = 0;
-        return tarih;
-    }
+    scanf("%d", &ts->saat);
     printf("Dakika: ");
-    if (scanf("%d", &tarih.dakika) != 1 || tarih.dakika < 0 || tarih.dakika > 59) {
-        tarih.dakika = 0;
-        return tarih;
-    }
+    scanf("%d", &ts->dakika);
     printf("Saniye: ");
-    if (scanf("%d", &tarih.saniye) != 1 || tarih.saniye < 0 || tarih.saniye > 59) {
-        tarih.saniye = 0;
-        return tarih;
-    }
-
-    return tarih; 
+    scanf("%d", &ts->saniye);
 }
 
-// Tarih ve saati epoch saniyesine türüne çeviren fonksiyon
-double tarihSaatToEpoch(TarihSaat tarih) {
-    struct tm zaman = {
-        tarih.saniye, tarih.dakika, tarih.saat, tarih.gun, tarih.ay - 1, tarih.yil - 1900
-    };
-    time_t epoch = mktime(&zaman);
-    return (double)epoch;
+// struct TarihSaat'ten epoch zamanına çeviren fonksiyon
+time_t epochCevir(struct TarihSaat ts) {
+    struct tm zamanBilgi = {0};
+    zamanBilgi.tm_year = ts.yil - 1900;
+    zamanBilgi.tm_mon = ts.ay - 1;
+    zamanBilgi.tm_mday = ts.gun;
+    zamanBilgi.tm_hour = ts.saat;
+    zamanBilgi.tm_min = ts.dakika;
+    zamanBilgi.tm_sec = ts.saniye;
+    return mktime(&zamanBilgi);
 }
 
 int main() {
-    TarihSaat tarih1, tarih2;
-
-    // Tarih ve saat bilgilerini almak için
-    tarih1 = tarihSaatAl(1);
-    tarih2 = tarihSaatAl(2);
-
-    // Hata uyarısı 
-    if (tarih1.yil == 0 || tarih2.yil == 0) {
-        printf("Gecersiz tarih veya saat girisi!\n");
-        return 1; // Hata kodu
+    struct TarihSaat ts1, ts2;
+    union EpochZaman epoch1, epoch2;
+    
+    printf("Birinci tarih ve saat bilgilerini giriniz:\n");
+    tarihSaatAl(&ts1);
+    
+    printf("\nIkinci tarih ve saat bilgilerini giriniz:\n");
+    tarihSaatAl(&ts2);
+    
+    // Şubat ayını 28 gün olarak kabul et
+    if (ts1.ay == 2) ts1.gun = (ts1.gun > 28) ? 28 : ts1.gun;
+    if (ts2.ay == 2) ts2.gun = (ts2.gun > 28) ? 28 : ts2.gun;
+    
+    // Epoch zamanlarına çevirme
+    epoch1.epoch = epochCevir(ts1);
+    epoch2.epoch = epochCevir(ts2);
+    
+    if (epoch1.epoch == -1 || epoch2.epoch == -1) {
+        printf("Hata: Epoch zamani hesaplanamadi!\n");
+        return 1;
     }
-
-    // Tarihleri epoch'a çevir
-    double epoch1 = tarihSaatToEpoch(tarih1);
-    double epoch2 = tarihSaatToEpoch(tarih2);
-
+    
     // Zaman farkını hesapla
-    double fark = fabs(epoch2 - epoch1);
-
-    // Sonuçları yazdır
-    printf("\nIlk tarih (Epoch): %.2f\n", epoch1);
-    printf("Ikinci tarih (Epoch): %.2f\n", epoch2);
-    printf("Zaman farki (saniye): %.2f\n", fark);
-
-    // Epoch kavramı
-    printf("\n*** Epoch Kavrami ***\n");
-    printf("Epoch, bilgisayar biliminde ve Unix benzeri isletim sistemlerinde bir zaman referans noktasi olarak kullanilir.\n");
-    printf("Genellikle '1 Ocak 1970 00:00:00 UTC' olarak kabul edilen bu andan itibaren gecen saniye sayisini ifade eder.\n");
-    printf("Bu sayede farkli sistemler arasinda zamanin tutarli bir sekilde temsil edilmesi saglanir.\n");
-
+    double fark = difftime(epoch2.epoch, epoch1.epoch);
+    
+    printf("\nBirinci tarih icin epoch zamani: %ld\n", epoch1.epoch);
+    printf("Ikinci tarih icin epoch zamani: %ld\n", epoch2.epoch);
+    printf("Iki tarih arasindaki fark: %.0f saniye (%.2f saat)\n", fark, fark / 3600.0);
+    
+    printf("\nEpoch Time, bilgisayar sistemlerinde zamani temsil etmek icin kullanilan bir yontemdir. \n");
+    printf("1 Ocak 1970, 00:00:00 UTC (Esgudumlu Evrensel Zaman) tarihinden itibaren gecen saniye sayisini ifade eder.\n");
+    printf("Buna ek olarak Unix Zamani olarak da bilinir cunku ilk olarak Unix tabanli isletim sistemlerinde kullanilmistir.\n");
+    
     return 0;
 }
+
+
