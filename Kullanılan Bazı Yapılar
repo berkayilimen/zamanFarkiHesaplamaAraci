@@ -1,0 +1,22 @@
+ STRUCT YAPISI 
+
+Farklı veri tiplerini tek bir çatı altında toplamanızı sağlayan bir veri yapısıdır. Her bir veri tipine "üye" (member) adı verilir. Struct'lar, ilgili verileri bir arada tutarak kodun daha düzenli ve okunabilir olmasını sağlar.
+Veri Gruplama: Birbiriyle ilişkili verileri tek bir birimde toplar.
+Kod Organizasyonu: Verileri düzenli bir şekilde saklayarak kodun daha anlaşılır ve yönetilebilir olmasını sağlar.
+Veri Transferi: Fonksiyonlara birden fazla veriyi tek bir argüman olarak göndermeyi kolaylaştırır.
+
+
+
+ UNION YAPISI
+Farklı veri tiplerini aynı bellek alanını paylaşacak şekilde saklayan bir veri yapısıdır. Yani, bir union içindeki farklı üyeler aynı adresi kullanır. Bu, aynı anda sadece bir üyenin değerini saklayabileceğiniz anlamına gelir.
+Bellek Tasarrufu: Farklı veri tiplerinden sadece birinin kullanılacağı durumlarda bellek tasarrufu sağlar.
+Veri Yorumlama: Aynı bellek alanını farklı şekillerde yorumlamayı sağlar.
+Donanım Erişimi: Donanım seviyesinde farklı veri tiplerine erişmek için kullanılabilir.
+Projedeki Kullanılan Yapılar Özeti (Varsayımsal E-Ticaret Projesi)
+Ürün Yapısı: Bir ürünün temel özelliklerini saklamak için kullanılıyor.
+Kategori Yapısı: Ürünlerin kategorilerini saklamak için kullanılıyor.
+Sepet Yapısı: Bir kullanıcının sepetindeki ürünleri saklamak için kullanılıyor.
+Kullanım Amaçları (Proje Bağlamında):
+Veri Tabanı Entegrasyonu: Veritabanından çekilen verilerin program içinde kullanılabilir hale getirilmesinde ve veritabanına kaydedilecek verilerin düzenlenmesinde kullanılıyor.
+Kullanıcı Arayüzü: Kullanıcı arayüzünde ürünlerin, kategorilerin ve sepet bilgilerinin gösterilmesinde ve kullanıcı etkileşimlerinin yönetilmesinde kullanılıyor.
+İş Mantığı: Ürünlerin fiyatlandırılması, stok takibi, sepet işlemleri ve sipariş yönetimi gibi iş mantığı işlemlerinde kullanılıyor.
