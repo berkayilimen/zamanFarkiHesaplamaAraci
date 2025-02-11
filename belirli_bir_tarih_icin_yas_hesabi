@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <time.h>
+
+// Tarih ve saat bilgisini saklamaya yarayan struct
+struct TarihSaat {
+    int yil, ay, gun, saat, dakika, saniye;
+};
+
+// Epoch zamanını saklamak için union
+union EpochZaman {
+    time_t epoch;
+};
+
+// Kullanıcının tarih bilgisini al
+void tarihSaatAl(char *mesaj, struct TarihSaat *ts) {
+    printf("%s Yil: ", mesaj);
+    scanf("%d", &ts->yil);
+    printf("%s Ay: ", mesaj);
+    scanf("%d", &ts->ay);
+    printf("%s Gun: ", mesaj);
+    scanf("%d", &ts->gun);
+    printf("%s Saat: ", mesaj);
+    scanf("%d", &ts->saat);
+    printf("%s Dakika: ", mesaj);
+    scanf("%d", &ts->dakika);
+    printf("%s Saniye: ", mesaj);
+    scanf("%d", &ts->saniye);
+}
+
+// struct TarihSaat'ten epoch zamanına çeviren fonksiyon
+time_t epochCevir(struct TarihSaat ts) {
+    struct tm zamanBilgi = {0};
+    zamanBilgi.tm_year = ts.yil - 1900;
+    zamanBilgi.tm_mon = ts.ay - 1;
+    zamanBilgi.tm_mday = ts.gun;
+    zamanBilgi.tm_hour = ts.saat;
+    zamanBilgi.tm_min = ts.dakika;
+    zamanBilgi.tm_sec = ts.saniye;
+    return mktime(&zamanBilgi);
+}
+
+int main() {
+    struct TarihSaat dogumTarihi, hedefTarih;
+    union EpochZaman dogumEpoch, hedefEpoch;
+
+    // Kullanıcının doğum tarihini al
+    printf("Lutfen dogum tarihinizi giriniz:\n");
+    tarihSaatAl("Dogum", &dogumTarihi);
+
+    // Kullanıcının hedef tarihi al
+    printf("\nHangi tarihteki yasinizi ogrenmek istiyorsunuz?\n");
+    tarihSaatAl("Hedef", &hedefTarih);
+
+    // Şubat ayını 28 gün olarak kabul et
+    if (dogumTarihi.ay == 2) dogumTarihi.gun = (dogumTarihi.gun > 28) ? 28 : dogumTarihi.gun;
+    if (hedefTarih.ay == 2) hedefTarih.gun = (hedefTarih.gun > 28) ? 28 : hedefTarih.gun;
+
+    // Doğum tarihini epoch zamanına çevir
+    dogumEpoch.epoch = epochCevir(dogumTarihi);
+
+    // Hedef tarihi epoch zamanına çevir
+    hedefEpoch.epoch = epochCevir(hedefTarih);
+
+    if (dogumEpoch.epoch == -1 || hedefEpoch.epoch == -1) {
+        printf("Hata: Epoch zamani hesaplanamadi!\n");
+        return 1;
+    }
+
+    // Yaşı hesapla
+    double yasFarki = difftime(hedefEpoch.epoch, dogumEpoch.epoch);
+    double yas = yasFarki / (60 * 60 * 24 * 365.25); // Saniye -> Dakika -> Saat -> Gün -> Yıl
+
+    printf("\nDogum tarihiniz icin epoch zamani: %ld\n", dogumEpoch.epoch);
+    printf("Hedef tarih icin epoch zamani: %ld\n", hedefEpoch.epoch);
+    printf("Iki tarih arasindaki epoch zamani farki: %.0f saniye\n", yasFarki);
+    printf("Bu tarihteki yasiniz: %.0f\n", yas); // Yaşı yuvarlayarak tam sayı olarak göster
+
+    return 0;
+}
